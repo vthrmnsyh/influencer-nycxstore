@@ -8,11 +8,14 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import networkx as nx
+from pathlib import Path
 
 # ── Optimasi Konfigurasi Windows & Streamlit ────────────────────────────────
 warnings.filterwarnings("ignore")
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-DEPLOY_DIR = os.path.join(os.path.dirname(__file__), "deployment")
+
+# Robust path — works on Streamlit Cloud, local, dan Windows
+DEPLOY_DIR = str(Path(__file__).resolve().parent / "deployment")
 
 st.set_page_config(
     page_title="Influencer @NYCXSTORE",
@@ -30,7 +33,6 @@ TIER_COLORS = {
     "Tier 3 - Regular User":     "#3498db",
 }
 TIER_ORDER = list(TIER_COLORS.keys())
-DEPLOY_DIR = os.path.join(os.path.dirname(__file__), "deployment")
 
 # ────────────────────────────────────────────────────────────────────────────
 # DEFENSIVE IMPORT LIBRARIES (Menghindari Crash Native)
@@ -159,6 +161,18 @@ with st.sidebar:
 
     if not ML_AVAILABLE:
         st.error(f"⚠️ PyTorch/Transformers gagal dimuat. Mode Terdegradasi Aktif.\n\nDetail: {ML_ERROR_MSG}")
+
+    # DEBUG — hapus setelah deployment sukses
+    with st.expander("🔍 Debug Info", expanded=False):
+        st.code(f"DEPLOY_DIR : {DEPLOY_DIR}")
+        st.code(f"Dir exists : {os.path.isdir(DEPLOY_DIR)}")
+        if os.path.isdir(DEPLOY_DIR):
+            files = os.listdir(DEPLOY_DIR)
+            st.code(f"Files      : {files}")
+            for f in ["gnn.pkl", "df_sna_results.csv", "graph_edges.csv", "training_history.json", "gnn_model_state.pt"]:
+                fp = os.path.join(DEPLOY_DIR, f)
+                size = os.path.getsize(fp) if os.path.exists(fp) else -1
+                st.code(f"{f}: {'✅' if size > 0 else '❌'} ({size:,} bytes)")
 
     if DATA_OK:
         di = bundle["dataset_info"]
