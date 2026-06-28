@@ -1,7 +1,3 @@
-Karena ini adalah proyek skripsi yang cukup teknis (menggunakan GNN, IndoBERT, dan Streamlit), file README.md Anda harus terlihat profesional untuk meyakinkan dosen pembimbing atau penguji.
-
-Berikut adalah draf README.md yang lengkap dan terstruktur. Anda cukup menyalin ini ke file README.md di folder proyek Anda:
-
 Analisis Influencer TikTok @NYCXSTORE
 Sistem pendukung keputusan untuk mengidentifikasi influencer potensial menggunakan Graph Neural Networks (GNN) dan Natural Language Processing (NLP).
 
