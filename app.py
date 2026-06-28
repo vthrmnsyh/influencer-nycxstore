@@ -12,6 +12,7 @@ import networkx as nx
 # ── Optimasi Konfigurasi Windows & Streamlit ────────────────────────────────
 warnings.filterwarnings("ignore")
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+DEPLOY_DIR = os.path.join(os.path.dirname(__file__), "deployment")
 
 st.set_page_config(
     page_title="Influencer @NYCXSTORE",
