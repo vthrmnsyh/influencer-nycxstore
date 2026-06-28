@@ -90,11 +90,7 @@ def load_bundle():
     path = os.path.join(DEPLOY_DIR, "gnn.pkl")
     if not os.path.exists(path):
         return None
-    try:
-        return joblib.load(path)
-    except Exception as e:
-        st.error(f"❌ Gagal load gnn.pkl: {e}")
-        return None
+    return joblib.load(path)
 
 @st.cache_data(show_spinner="Memuat data SNA…")
 def load_sna_df():
@@ -158,6 +154,30 @@ df_edge = load_edges()
 history = load_history()
 model   = load_gnn_model(bundle) if bundle else None
 DATA_OK = bundle is not None and not df_sna.empty
+
+# ── UNCACHED DEBUG TEST ──────────────────────────────────────────────────────
+with st.expander("🔍 Debug: Test Load Langsung", expanded=True):
+    import traceback
+    _pkl_path = os.path.join(DEPLOY_DIR, "gnn.pkl")
+    _csv_path = os.path.join(DEPLOY_DIR, "df_sna_results.csv")
+    st.code(f"DEPLOY_DIR : {DEPLOY_DIR}")
+    st.code(f"bundle     : {type(bundle)} | keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'N/A'}")
+    st.code(f"df_sna     : {df_sna.shape if not df_sna.empty else 'EMPTY'}")
+    st.code(f"DATA_OK    : {DATA_OK}")
+    # Test joblib langsung tanpa cache
+    try:
+        _raw = joblib.load(_pkl_path)
+        st.success(f"✅ joblib.load OK → type={type(_raw)}, keys={list(_raw.keys()) if isinstance(_raw, dict) else 'N/A'}")
+    except Exception as _e:
+        st.error(f"❌ joblib.load GAGAL: {_e}")
+        st.code(traceback.format_exc())
+    # Test pd.read_csv langsung
+    try:
+        _df = pd.read_csv(_csv_path, nrows=3)
+        st.success(f"✅ pd.read_csv OK → shape={_df.shape}, cols={list(_df.columns)}")
+    except Exception as _e:
+        st.error(f"❌ pd.read_csv GAGAL: {_e}")
+# ─────────────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/tiktok--v1.png", width=60)
