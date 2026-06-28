@@ -88,7 +88,13 @@ except Exception as e:
 @st.cache_resource(show_spinner="Memuat artefak model…")
 def load_bundle():
     path = os.path.join(DEPLOY_DIR, "gnn.pkl")
-    return joblib.load(path) if os.path.exists(path) else None
+    if not os.path.exists(path):
+        return None
+    try:
+        return joblib.load(path)
+    except Exception as e:
+        st.error(f"❌ Gagal load gnn.pkl: {e}")
+        return None
 
 @st.cache_data(show_spinner="Memuat data SNA…")
 def load_sna_df():
