@@ -566,45 +566,52 @@ with tab4:
 with tab5:
     st.markdown('<div class="section-header"><h3>📊 Model Performance</h3><span class="section-badge">Evaluasi GNN</span></div>', unsafe_allow_html=True)
 
-    # Gauge cards
+    # Donut ring cards dengan angka di tengah
     g1, g2, g3 = st.columns(3)
     perf_items = [
-        ("Test F1 Macro",   mp["test_f1_macro"],  "#6366f1", g1),
-        ("AUC-ROC",         mp["test_auc_roc"],   "#10b981", g2),
-        ("Best Val F1",     mp["best_val_f1"],    "#f59e0b", g3),
+        ("Test F1 Macro", mp["test_f1_macro"],  "#6366f1", "rgba(99,102,241,0.15)",  g1),
+        ("AUC-ROC",       mp["test_auc_roc"],   "#10b981", "rgba(16,185,129,0.15)",  g2),
+        ("Best Val F1",   mp["best_val_f1"],    "#f59e0b", "rgba(245,158,11,0.15)",  g3),
     ]
-    for label, val, color, col in perf_items:
-        val_f = float(val)
+    for label, val, color, fill_color, col in perf_items:
+        val_f  = float(val)
+        remain = 1.0 - val_f
         with col:
-            fig_gauge = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=val_f * 100,
-                number={"suffix": "%", "font": {"family": "Space Grotesk", "size": 28, "color": "#e2e8f0"}},
-                title={"text": label, "font": {"family": "Inter", "size": 13, "color": "#94a3b8"}},
-                gauge={
-                    "axis": {"range": [0, 100], "tickcolor": "#475569", "tickfont": {"size": 9}},
-                    "bar": {"color": color, "thickness": 0.7},
-                    "bgcolor": "#161626",
-                    "borderwidth": 0,
-                    "steps": [
-                        {"range": [0, 60],  "color": "#1a1a2e"},
-                        {"range": [60, 80], "color": "#1e1e35"},
-                        {"range": [80, 100],"color": "#252545"},
-                    ],
-                    "threshold": {
-                        "line": {"color": color, "width": 3},
-                        "thickness": 0.85,
-                        "value": val_f * 100,
-                    },
-                },
+            fig_ring = go.Figure()
+            # Background ring (sisa)
+            fig_ring.add_trace(go.Pie(
+                values=[val_f, remain],
+                hole=0.72,
+                marker=dict(colors=[color, "#1e1e35"]),
+                textinfo="none",
+                hoverinfo="skip",
+                showlegend=False,
+                sort=False,
+                direction="clockwise",
             ))
-            fig_gauge.update_layout(
+            # Angka + label di tengah via annotation
+            fig_ring.update_layout(
                 paper_bgcolor="#0d0d14",
-                height=240,
-                margin=dict(t=30, b=10, l=20, r=20),
+                plot_bgcolor="#0d0d14",
+                height=210,
+                margin=dict(t=16, b=16, l=16, r=16),
                 font=dict(family="Inter"),
+                annotations=[
+                    dict(
+                        text=f"<b>{val_f*100:.1f}%</b>",
+                        x=0.5, y=0.55, showarrow=False,
+                        font=dict(size=30, family="Space Grotesk", color="#e2e8f0"),
+                        xanchor="center", yanchor="middle",
+                    ),
+                    dict(
+                        text=label,
+                        x=0.5, y=0.3, showarrow=False,
+                        font=dict(size=12, family="Inter", color="#64748b"),
+                        xanchor="center", yanchor="middle",
+                    ),
+                ],
             )
-            st.plotly_chart(fig_gauge, use_container_width=True)
+            st.plotly_chart(fig_ring, use_container_width=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
